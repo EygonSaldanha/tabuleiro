@@ -6,8 +6,13 @@ import { Jogo } from './jogo.entity';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get('/api')
+  getHello(): string {
+    return 'Hello from NestJS!';
+  }
+
   @Get('/jogos')
-  async getJogos(): Promise<Jogo[]> {
+  getJogos() {
     return this.appService.getJogos();
   }
 }

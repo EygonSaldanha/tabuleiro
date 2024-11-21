@@ -14,7 +14,7 @@ import { AppService } from './app.service';
       password: '1234',
       database: 'postgres',
       entities: [Jogo],
-      synchronize: true, // Apenas para desenvolvimento (cria as tabelas automaticamente)
+      // synchronize: true, // Apenas para desenvolvimento (cria as tabelas automaticamente)
     }),
     TypeOrmModule.forFeature([Jogo]), // Registro da entidade
   ],
