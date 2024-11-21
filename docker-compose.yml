@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: always
+    ports:
+      - "5432:5432" # Porta do PostgreSQL
+    environment:
+      POSTGRES_USER: postgres       # Usuário padrão
+      POSTGRES_PASSWORD: 1234       # Senha
+      POSTGRES_DB: grafos           # Nome do banco de dados
+    volumes:
+      - ./data:/var/lib/postgresql/data # Volume persistente para os dados
