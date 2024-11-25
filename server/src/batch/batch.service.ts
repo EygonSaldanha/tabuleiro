@@ -79,7 +79,7 @@ export class BatchService {
       const categories = Array.isArray(item.link)
         ? item.link.filter((link) => link.$.type === 'boardgamecategory')
         : [item.link];
-      
+
       for (const category of categories) {
         // console.log(category);
         const categoryName = category.$.value;
@@ -91,57 +91,70 @@ export class BatchService {
         if (!foundCategory) {
           foundCategory = await this.categoryRepository.save({ categoryName });
         } else {
-          const existingJogoCategory = await this.jogoCategoryRepository.findOne({
-            where: {
+          const existingJogoCategory =
+            await this.jogoCategoryRepository.findOne({
+              where: {
+                jogo: jogo,
+                category: foundCategory,
+              },
+            });
+
+          if (!existingJogoCategory) {
+            const jogoCategory = this.jogoCategoryRepository.create({
               jogo: jogo,
               category: foundCategory,
-            },
-          });
-  
-          if (existingJogoCategory) {
-            console.log('Relacionamento entre jogo e categoria já existe');
-            return; 
+            });
+            console.log(jogoCategory);
+
+            try {
+              await this.jogoCategoryRepository.save(jogoCategory);
+              console.log('Relacionamento salvo com sucesso!');
+            } catch (error) {
+              console.error('Erro ao salvar o relacionamento:', error);
+            }
           }
         }
+      }
 
-        const jogoCategory = this.jogoCategoryRepository.create({
-          jogo: jogo,
-          category: foundCategory,
-        });
-        console.log(jogoCategory);
-        
+      const mechanics = Array.isArray(item.link)
+        ? item.link.filter((link) => link.$.type === 'boardgamemechanic')
+        : [item.link];
+
+      for (const mechanic of mechanics) {
+        const mechanicName = mechanic.$.value;
+        let foundMechanic;
+
+        // Verificar se a mecânica já existe no banco
         try {
-          await this.jogoCategoryRepository.save(jogoCategory);
+          // Verifique se a mecânica já existe no banco de dados
+          foundMechanic = await this.mechanicRepository.findOne({
+            where: { mechanicName }, // Verifique pelo nome da mecânica
+          });
+          // Caso a mecânica não exista, crie uma nova
+          if (!foundMechanic) {
+            let mechanicCreated = await this.mechanicRepository.save({
+              mechanicName,
+            });
+          }
+        } catch (error) {
+          // Lidar com o erro
+          console.error('Erro ao salvar ou encontrar a mecânica:', error);
+          throw new Error(
+            'Ocorreu um erro ao tentar salvar ou encontrar a mecânica.',
+          );
+        }
+
+        const jogoMechanic = this.jogoMechanicRepository.create({
+          jogo: jogo,
+          mechanic: foundMechanic,
+        });
+
+        try {
+          await this.jogoMechanicRepository.save(jogoMechanic);
           console.log('Relacionamento salvo com sucesso!');
         } catch (error) {
           console.error('Erro ao salvar o relacionamento:', error);
         }
-      }
-      
-      const mechanics = Array.isArray(item.link)
-        ? item.link.filter((link) => link.$.type === 'boardgamemechanic')
-        : [item.link];
-  
-      for (const mechanic of mechanics) {
-        const mechanicName = mechanic.$.value;
-  
-        // Verificar se a mecânica já existe no banco
-        let dbMechanic = await this.mechanicRepository.findOne({
-          where: { jogoMechanics: mechanicName },
-        });
-  
-        // Caso não exista, criar uma nova
-        if (!dbMechanic) {
-          dbMechanic = await this.mechanicRepository.save({
-            jogoMechanics: mechanicName,
-          });
-        }
-  
-        // Salvar relação entre jogo e mecânica
-        await this.jogoMechanicRepository.save({
-          jogo: jogo,
-          mechanic: dbMechanic,
-        });
       }
     }
   }
