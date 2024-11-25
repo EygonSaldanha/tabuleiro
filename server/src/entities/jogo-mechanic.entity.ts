@@ -7,9 +7,11 @@ export class JogoMechanic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Jogo, (jogo) => jogo.mechanics, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Jogo, (jogo) => jogo.jogoMechanics, { onDelete: 'CASCADE' })
   jogo: Jogo;
 
-  @ManyToOne(() => Mechanic, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Mechanic, (mechanic) => mechanic.jogoMechanics, {
+    onDelete: 'CASCADE',
+  })
   mechanic: Mechanic;
 }

@@ -1,21 +1,18 @@
 import {
   Column,
   Entity,
-  JoinTable,
-  ManyToMany,
   OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import { JogoCategory } from './jogo-category.entity';
 import { JogoMechanic } from './jogo-mechanic.entity';
-import { Category } from './category.entity';
 
 @Entity('jogo') // Nome da tabela no banco
 export class Jogo {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: true })
   @Column()
   name: string;
 
@@ -64,21 +61,9 @@ export class Jogo {
   @Column({ nullable: true })
   image_url: string;
 
-  // Relacionamento Many-to-Many com a tabela Category
-  @ManyToMany(() => Category, (category) => category.jogos)
-  @JoinTable({
-    name: 'jogo_category', // Nome da tabela intermediária
-    joinColumn: {
-      name: 'jogo_id', // Coluna referente ao jogo
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'category_id', // Coluna referente à categoria
-      referencedColumnName: 'id',
-    },
-  })
-  categories: Category[];
+  @OneToMany(() => JogoCategory, (jogoCategory) => jogoCategory.jogo)
+  jogoCategories: JogoCategory[];
 
   @OneToMany(() => JogoMechanic, (jogoMechanic) => jogoMechanic.jogo)
-  mechanics: JogoMechanic[];
+  jogoMechanics: JogoMechanic[];
 }

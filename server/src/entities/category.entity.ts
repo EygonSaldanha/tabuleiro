@@ -1,15 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
-import { Jogo } from './jogo.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { JogoCategory } from './jogo-category.entity';
 
-@Entity()
+@Entity('category')
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'category_name' })
   categoryName: string;
 
-  // Relacionamento Many-to-Many com a tabela Jogo
-  @ManyToMany(() => Jogo, (jogo) => jogo.categories)
-  jogos: Jogo[];
+  @OneToMany(() => JogoCategory, (jogoCategory) => jogoCategory.category, {
+    cascade: true,
+  })
+  jogoCategories: JogoCategory[];
 }

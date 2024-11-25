@@ -1,10 +1,16 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { JogoMechanic } from './jogo-mechanic.entity';
 
-@Entity()
+@Entity('mechanic')
 export class Mechanic {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  mechanic_name: string;
+  @Column({ name: 'mechanic_name' })
+  mechanicName: string;
+
+  @OneToMany(() => JogoMechanic, (jogoMechanic) => jogoMechanic.mechanic, {
+    cascade: true,
+  })
+  jogoMechanics: JogoMechanic[];
 }
