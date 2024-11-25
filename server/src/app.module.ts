@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Jogo } from './jogo.entity'; // Entidade da tabela jogo
+import { Jogo } from './entities/jogo.entity'; // Entidade da tabela jogo
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BatchService } from './batch/batch.service';
+import { Category } from './entities/category.entity';
+import { Mechanic } from './entities/mechanic.entity';
+import { JogoCategory } from './entities/jogo-category.entity';
+import { JogoMechanic } from './entities/jogo-mechanic.entity';
+import { BatchController } from './batch/batch.controller';
 
 @Module({
   imports: [
@@ -13,12 +19,12 @@ import { AppService } from './app.service';
       username: 'postgres',
       password: '1234',
       database: 'postgres',
-      entities: [Jogo],
+      entities: [Jogo, Category,JogoCategory,JogoMechanic , Mechanic],
       // synchronize: true, // Apenas para desenvolvimento (cria as tabelas automaticamente)
     }),
-    TypeOrmModule.forFeature([Jogo]), // Registro da entidade
+    TypeOrmModule.forFeature([Jogo, Category,JogoCategory,JogoMechanic, Mechanic]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, BatchController],
+  providers: [AppService, BatchService],
 })
 export class AppModule {}

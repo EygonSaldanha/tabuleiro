@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Jogo } from './jogo.entity';
+import { Jogo } from './entities/jogo.entity';
 
 @Controller()
 export class AppController {

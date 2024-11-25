@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Jogo } from './jogo.entity';
+import { Jogo } from './entities/jogo.entity';
 
 describe('AppController', () => {
   let appController: AppController;
