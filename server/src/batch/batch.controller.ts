@@ -4,8 +4,12 @@ import { BatchService } from './batch.service';
 export class BatchController {
   constructor(private readonly batchService: BatchService) {}
 
-  @Get('update-jogos')
+  @Get('update-relacionamento')
   async updateJogos() {
     return await this.batchService.processBatch();
+  }
+  @Get('processar-jogos')
+  async importarCsv() {
+    return await this.batchService.importarCsv();
   }
 }
