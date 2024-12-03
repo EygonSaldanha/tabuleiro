@@ -25,7 +25,7 @@ export class BatchService {
     private readonly jogoMechanicRepository: Repository<JogoMechanic>,
   ) {}
 
-  async processBatch(batchSize = 100) {
+  async processBatch(batchSize = 10) {
     let offset = 0;
     let jogos: Jogo[];
 
@@ -36,9 +36,11 @@ export class BatchService {
         take: batchSize,
       });
       offset += batchSize;
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       // 2. Processar cada jogo
       const updates = jogos.map(async (jogo) => {
+        await delay(10000); // Delay de 1 segundo
         try {
           const { data } = await axios.get(
             `https://boardgamegeek.com/xmlapi2/thing?id=${jogo.id}`,
@@ -46,6 +48,7 @@ export class BatchService {
           );
           const parsedData = await this.parseXML(data);
           await this.updateJogoWithAPIResponse(jogo, parsedData);
+
         } catch (error) {
           console.error(`Erro ao processar jogo ${jogo.id}:`, error);
         }

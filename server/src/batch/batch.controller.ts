@@ -10,6 +10,8 @@ export class BatchController {
   }
   @Get('processar-jogos')
   async importarCsv() {
+    console.log("teste");
+    
     return await this.batchService.importarCsv();
   }
 }

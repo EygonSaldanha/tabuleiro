@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { JogoCategory } from './jogo-category.entity';
@@ -9,7 +10,7 @@ import { JogoMechanic } from './jogo-mechanic.entity';
 
 @Entity('jogo') // Nome da tabela no banco
 export class Jogo {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column({ nullable: true })

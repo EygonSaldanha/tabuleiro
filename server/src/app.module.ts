@@ -9,6 +9,9 @@ import { JogoCategory } from './entities/jogo-category.entity';
 import { JogoMechanic } from './entities/jogo-mechanic.entity';
 import { Jogo } from './entities/jogo.entity'; // Entidade da tabela jogo
 import { Mechanic } from './entities/mechanic.entity';
+import { JogoRelationship } from './entities/jogo-relationship.entity';
+import { JogoController } from './controllers/jogo.controller';
+import { JogoService } from './services/jogo.service';
 
 @Module({
   imports: [
@@ -19,7 +22,7 @@ import { Mechanic } from './entities/mechanic.entity';
       username: 'postgres',
       password: '1234',
       database: 'postgres',
-      entities: [Jogo, Category, JogoCategory, JogoMechanic, Mechanic],
+      entities: [Jogo, Category, JogoCategory, JogoMechanic, Mechanic, JogoRelationship],
       migrations: ['dist/migrations/*.js'], // Local das migrações
     }),
     TypeOrmModule.forFeature([
@@ -28,9 +31,10 @@ import { Mechanic } from './entities/mechanic.entity';
       JogoCategory,
       JogoMechanic,
       Mechanic,
+      JogoRelationship,
     ]),
   ],
-  controllers: [AppController, BatchController],
-  providers: [AppService, BatchService],
+  controllers: [AppController, BatchController, JogoController],
+  providers: [AppService, BatchService, JogoService],
 })
 export class AppModule {}
