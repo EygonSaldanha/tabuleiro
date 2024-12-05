@@ -14,6 +14,22 @@ export class JogoService {
     private readonly relationshipRepository: Repository<JogoRelationship>,
   ) {}
 
+  async findAll(): Promise<Jogo[]> {
+    return this.jogoRepository.find();
+  }
+
+  async findRelationshipsByJogos(
+    jogosIds: number[],
+  ): Promise<JogoRelationship[]> {
+    return this.relationshipRepository
+      .createQueryBuilder('relationship')
+      .leftJoinAndSelect('relationship.jogo1', 'jogo1')
+      .leftJoinAndSelect('relationship.jogo2', 'jogo2')
+      .where('relationship.jogo1 IN (:...jogosIds)', { jogosIds })
+      .orWhere('relationship.jogo2 IN (:...jogosIds)', { jogosIds })
+      .getMany();
+  }
+
   async calculateRelationships(): Promise<any[]> {
     // 1. Buscar todos os jogos com suas categorias e mecânicas
     const jogos = await this.jogoRepository.find({
@@ -32,7 +48,6 @@ export class JogoService {
       for (let j = i + 1; j < jogos.length; j++) {
         const jogo1 = jogos[i];
         const jogo2 = jogos[j];
-        console.log(jogo1);
 
         // 3. Categorias em comum
         const categoriesSet1 = new Set(
@@ -55,7 +70,6 @@ export class JogoService {
         const mechanicComum = [...mechanicsSet1].filter((id) =>
           mechanicsSet2.has(id),
         );
-        // console.log(categoriasComum, mechanicComum);
 
         // 5. Se não há categorias ou mecânicas em comum, ignore
         if (categoriasComum.length === 0 && mechanicComum.length === 0) {
@@ -70,7 +84,6 @@ export class JogoService {
 
         const categoryScore = (categoriasComum.length / totalCategories) * 70;
         const mechanicScore = (mechanicComum.length / totalMechanics) * 30;
-        console.log(categoriasComum, totalCategories);
 
         let weight = Math.round(categoryScore + mechanicScore);
         // weight = Math.max(1, Math.min(weight, 100));
@@ -84,14 +97,13 @@ export class JogoService {
         // console.log('AAAAAAAAAAAAAAAAAAAAAAA', existingRelationship);
 
         // 7. Adicionar ao array de relacionamentos
-        if (weight == 0) {
-          console.log(categoriasComum, mechanicComum);
+        if (weight !== 0) {
+          relationships.push({
+            jogo1: jogo1.id,
+            jogo2: jogo2.id,
+            weight,
+          });
         }
-        relationships.push({
-          jogo1: jogo1.id,
-          jogo2: jogo2.id,
-          weight,
-        });
       }
     }
 
@@ -100,9 +112,20 @@ export class JogoService {
 
   async saveRelationships(): Promise<void> {
     const relationships = await this.calculateRelationships();
-    console.log(relationships);
+
+    const listaAtualizada = [];
+    relationships.forEach((base) => {
+      if (
+        !listaAtualizada.find(
+          (target) => target.jogo1 == base.jogo2 && target.jogo2 == base.jogo1,
+        )
+      ) {
+        listaAtualizada.push(base);
+      }
+    });
+
     // Mapear dados para salvar no banco
-    const dataToSave = relationships.map((rel) => ({
+    const dataToSave = listaAtualizada.map((rel) => ({
       jogo1: rel.jogo1,
       jogo2: rel.jogo2,
       weight: rel.weight,
@@ -110,5 +133,27 @@ export class JogoService {
 
     // Salvar no banco
     await this.relationshipRepository.save(dataToSave);
+  }
+
+  async getRelationships(): Promise<any[]> {
+    // Buscar todos os relacionamentos no banco, incluindo as informações dos jogos relacionados
+    const relationships = await this.relationshipRepository.find({
+      relations: ['jogo1', 'jogo2'], // Adicione mais relacionamentos caso necessário
+    });
+    // console.log(relationships);
+
+    // Mapear os dados para retornar apenas o necessário
+    return relationships.map((relationship) => ({
+      id: relationship.id,
+      jogo1: {
+        id: relationship.jogo1.id,
+        name: relationship.jogo1.name, // Supondo que `name` seja uma propriedade de Jogo
+      },
+      jogo2: {
+        id: relationship.jogo2.id,
+        name: relationship.jogo2.name,
+      },
+      weight: relationship.weight,
+    }));
   }
 }
