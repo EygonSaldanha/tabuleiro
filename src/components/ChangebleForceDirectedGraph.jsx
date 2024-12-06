@@ -2,10 +2,9 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import PropTypes from "prop-types";
 
-function ChangebleForceDirectedGraph({ relationships }) {
+function ChangebleForceDirectedGraph({ relationships, selectedJogos }) {
   const svgRef = useRef(null);
 
-  // Renderiza o gráfico com o D3
   useEffect(() => {
     if (!relationships.nodes || relationships.nodes.length === 0) return;
 
@@ -30,20 +29,28 @@ function ChangebleForceDirectedGraph({ relationships }) {
           .id((d) => d.id)
           .distance(100)
       )
-      .force("charge", d3.forceManyBody().strength(-200))
+      .force("charge", d3.forceManyBody().strength(-1000))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     // Renderizar os links
     const link = svg
       .append("g")
-      .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
       .selectAll("line")
       .data(relationships.links)
       .join("line")
-      .attr("stroke-width", (d) => Math.sqrt(d.weight));
+      .attr("stroke-width", (d) => Math.sqrt(d.weight)) // Espessura baseada no peso
+      .attr("stroke", (d) => {
+        // Use uma escala de cor para mapear o peso
+        const colorScale = d3
+          .scaleLinear()
+          .domain([1, d3.max(relationships.links, (d) => d.weight)]) // Intervalo de pesos
+          .range(["#00ff00", "#ff0000"]); // De vermelho claro ao vermelho intenso
 
-    // Renderizar os nós
+        return colorScale(d.weight); // Retorna a cor baseada no peso
+      });
+
+    // Renderizar os nós e mudar a cor com base no peso das arestas conectadas
     const node = svg
       .append("g")
       .attr("stroke", "#fff")
@@ -107,8 +114,13 @@ function ChangebleForceDirectedGraph({ relationships }) {
 
   return <svg ref={svgRef} />;
 }
+
 ChangebleForceDirectedGraph.propTypes = {
-  relationships: PropTypes.array.isRequired, // Deve ser um array
-  setRelationships: PropTypes.func.isRequired, // Deve ser uma função
+  selectedJogos: PropTypes.array.isRequired, // Deve ser um array
+  relationships: PropTypes.shape({
+    nodes: PropTypes.array.isRequired,
+    links: PropTypes.array.isRequired,
+  }).isRequired,
 };
+
 export default ChangebleForceDirectedGraph;
